@@ -11,8 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
@@ -41,7 +43,10 @@ public class GameIT {
 
         // then:
         mockMvc.perform(get(newGameUrl))
-                .andExpect(status().is(200));
+                .andExpect(status().is(200))
+                .andExpect(jsonPath("$.roomName", is("Amber Room")))
+                .andExpect(jsonPath("$.maxPlayers", is(12)))
+        ;
     }
 
     @Test
