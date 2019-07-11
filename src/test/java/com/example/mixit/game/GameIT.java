@@ -11,6 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -53,5 +57,47 @@ public class GameIT {
     public void response404ForMissingGame() throws Exception {
         mockMvc.perform(get("/api/v1/game/11231"))
                 .andExpect(status().is(404));
+    }
+
+    @Test
+    public void playerCanSeeAllAvailableGames() throws Exception {
+        // given:
+        Stream.of(
+            GameDTO.builder()
+                .roomName("Amber Room")
+                .maxPlayers(12)
+                .build(),
+            GameDTO.builder()
+                .roomName("Panic Room")
+                .maxPlayers(3)
+                .build(),
+            GameDTO.builder()
+                .roomName("The Cube")
+                .maxPlayers(4)
+                .build()
+        ).forEach(game -> {
+            try {
+                String gameJson = new ObjectMapper().writeValueAsString(game);
+
+                mockMvc.perform(post("/api/v1/game")
+                        .content(gameJson)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                        .andExpect(status().is(201))
+                        .andReturn().getResponse().getHeader("Location");
+            } catch (Exception e) {}
+        });
+
+        // when:
+        mockMvc.perform(get("/api/v1/game"))
+            // then:
+            .andExpect(status().is(200))
+            .andExpect(jsonPath("$.[0].roomName", is("Amber Room")))
+            .andExpect(jsonPath("$.[0].maxPlayers", is(12)))
+            .andExpect(jsonPath("$.[1].roomName", is("Panic Room")))
+            .andExpect(jsonPath("$.[1].maxPlayers", is(3)))
+            .andExpect(jsonPath("$.[2].roomName", is("The Cube")))
+            .andExpect(jsonPath("$.[2].maxPlayers", is(4)))
+        ;
     }
 }

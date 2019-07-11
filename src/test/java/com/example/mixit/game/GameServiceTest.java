@@ -11,7 +11,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -68,5 +71,28 @@ public class GameServiceTest {
 
         // then:
         assertThat(result).isEqualTo(Optional.empty());
+    }
+
+    @Test
+    public void getAllGames() {
+        // given:
+        List<Game> exampleGames = Stream.of(
+                Game.builder().maxPlayers(5).roomName("Restricted area").build(),
+                Game.builder().maxPlayers(3).roomName("Minas Tirith").build(),
+                Game.builder().maxPlayers(6).roomName("Hobbiton").build()
+        ).collect(Collectors.toList());
+        when(gameRepository.findAll()).thenReturn(exampleGames);
+
+        // when:
+        GameService gameService = new GameService(gameRepository);
+        List<GameDTO> result = gameService.getAllGames();
+
+        // then:
+        verify(gameRepository, times(1)).findAll();
+        assertThat(result).containsExactlyInAnyOrder(
+                GameDTO.builder().maxPlayers(5).roomName("Restricted area").build(),
+                GameDTO.builder().maxPlayers(3).roomName("Minas Tirith").build(),
+                GameDTO.builder().maxPlayers(6).roomName("Hobbiton").build()
+        );
     }
 }
