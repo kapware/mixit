@@ -3,6 +3,7 @@ package com.example.mixit.player.service;
 import com.example.mixit.player.model.Player;
 import com.example.mixit.player.model.PlayerRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -11,6 +12,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class PlayerService {
     private final PlayerRepository playerRepository;
+    private final JmsTemplate jmsTemplate;
+
 
     public Long register(PlayerDTO player) {
         Player entity = Player.builder()
@@ -18,7 +21,11 @@ public class PlayerService {
                 .alias(player.getAlias())
                 .build();
         playerRepository.save(entity);
-
+        PlayerCreatedEvent playerCreatedEvent = PlayerCreatedEvent.builder()
+                .id(entity.getId())
+                .email(player.getEmail())
+                .build();
+        jmsTemplate.convertAndSend("player.q", playerCreatedEvent);
         return entity.getId();
     }
 

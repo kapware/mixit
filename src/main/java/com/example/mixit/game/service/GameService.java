@@ -13,7 +13,7 @@ import java.util.stream.StreamSupport;
 @Service
 @RequiredArgsConstructor
 public class GameService {
-    public final GameRepository gameRepository;
+    private final GameRepository gameRepository;
 
     public Long createGame(GameDTO game) {
         Game entity = Game.builder()
