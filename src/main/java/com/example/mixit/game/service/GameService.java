@@ -2,13 +2,11 @@ package com.example.mixit.game.service;
 
 import com.example.mixit.game.model.Game;
 import com.example.mixit.game.model.GameRepository;
-import com.google.common.collect.Lists;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Spliterator;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
