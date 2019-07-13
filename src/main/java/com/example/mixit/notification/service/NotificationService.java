@@ -3,6 +3,8 @@ package com.example.mixit.notification.service;
 import com.example.mixit.player.service.PlayerCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +25,10 @@ public class NotificationService {
                 .body("Great to have you here!")
                 .build();
 
-        restTemplate.postForLocation(mailServerApi, mail);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Type", "application/json");
+        HttpEntity<MailServerRequest> request = new HttpEntity<>(mail, headers);
+
+        restTemplate.postForLocation(mailServerApi, request);
     }
 }
